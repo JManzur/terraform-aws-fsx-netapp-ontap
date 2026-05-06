@@ -14,7 +14,7 @@ Terraform module for [Amazon FSx for NetApp ONTAP](https://aws.amazon.com/fsx/ne
 
 ## Usage
 
-### Minimal — Single-AZ
+### Minimal - Single-AZ
 
 ```hcl
 module "fsx_ontap" {
@@ -35,7 +35,7 @@ module "fsx_ontap" {
 }
 ```
 
-### Complete — Multi-AZ with SVMs, volumes, and backups
+### Complete - Multi-AZ with SVMs, volumes, and backups
 
 ```hcl
 module "fsx_ontap" {
