@@ -294,6 +294,46 @@ terraform plan \
   -var='svm_admin_password=changeme'
 ```
 
+## OPA Policy Validation
+
+Policies live in `policy/` and are evaluated against a Terraform plan JSON. Two tools can run them.
+
+**Unit tests** (no plan needed — uses `opa test`):
+
+```bash
+opa test policy/ -v
+```
+
+**Plan-time enforcement** (requires `conftest`):
+
+```bash
+# 1. Generate a plan artifact
+terraform plan -out=tfplan.tfplan
+
+# 2. Convert to JSON and test in one step
+terraform show -json tfplan.tfplan | conftest test -
+
+# Or save and test separately
+terraform show -json tfplan.tfplan > tfplan.json
+conftest test tfplan.json
+```
+
+`conftest` looks for policies in `./policy/` by default. `deny` rules block the pipeline; `warn` rules emit advisories without failing.
+
+### Policy rules
+
+| ID | Severity | Description |
+|----|----------|-------------|
+| `fsx-001` | DENY | `kms_key_id` must be set (customer-managed KMS required) |
+| `fsx-002` | DENY | `automatic_backup_retention_days` must not be 0 |
+| `sg-001` | DENY | No `0.0.0.0/0` ingress on security group rules |
+| `sg-002` | DENY | No `::/0` ingress on security group rules |
+| `tag-001` | DENY | `Environment` and `Name` tags must be present |
+| `fsx-101` | WARN | `SINGLE_AZ` deployment types flagged for review |
+| `fsx-102` | WARN | Backup retention < 7 days |
+| `vol-101` | WARN | `storage_efficiency_enabled` is not `true` |
+| `vol-102` | WARN | `snapshot_policy` is null |
+
 ---
 
 <!-- BEGIN_TF_DOCS -->
